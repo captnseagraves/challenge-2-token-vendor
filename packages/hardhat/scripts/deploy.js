@@ -9,20 +9,22 @@ const main = async () => {
 
   console.log("\n\n 📡 Deploying...\n");
 
-  const yourToken = await deploy("YourToken")
+  const yourToken = await deploy("YourToken");
+
+  // const result = await yourToken.transfer( "0x037899482fbfE991e80eaEF9FB980bf2992958Fd", utils.parseEther("1000") );
 
   //Todo: deploy the vendor
-  //const vendor = await deploy("Vendor",[ yourToken.address ])
+  const vendor = await deploy("Vendor",[ yourToken.address ]);
 
   //console.log("\n 🏵  Sending all 1000 tokens to the vendor...\n");
   //Todo: transfer the tokens to the vendor
-  //const result = await yourToken.transfer( vendor.address, utils.parseEther("1000") );
+  const result = await yourToken.transfer( vendor.address, utils.parseEther("1000") );
 
   //const stakerContract = await deploy("Staker",[ exampleExternalContract.address ]) // <-- add in constructor args like line 14 ^^^
 
   //console.log("\n 🤹  Sending ownership to frontend address...\n")
   //ToDo: change address with your burner wallet address vvvv
-  //await vendor.transferOwnership( "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1" );
+  await vendor.transferOwnership( "0x037899482fbfE991e80eaEF9FB980bf2992958Fd" );
 
   //const secondContract = await deploy("SecondContract")
 
