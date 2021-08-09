@@ -11,6 +11,8 @@ contract Vendor is Ownable {
   uint256 public pricePerToken = 0.001 ether;
 
   event BuyTokens(address _buyer, uint256 _amountOfETH, uint256 _amountOfTokens);
+  event SellTokens(address _seller, uint256 _amountOfETH, uint256 _amountOfTokens);
+
 
   constructor(address tokenAddress) public {
     yourToken = YourToken(tokenAddress);
@@ -22,7 +24,7 @@ contract Vendor is Ownable {
     require(msg.value > 0, "No ETH in transaction");
 
   
-    uint256 amountOfTokens = _amountOfTokens * yourToken.decimals();
+    uint256 amountOfTokens = _amountOfTokens * 10**18;
     uint256 checkedValue = msg.value / pricePerToken;
 
     require(checkedValue == _amountOfTokens, "Must send the exact amount of ETH for amount of tokens");
@@ -35,25 +37,19 @@ contract Vendor is Ownable {
   //ToDo: create a sellTokens() function:
 
   function sellTokens(uint256 _amountOfTokens) public payable {
-    // require(msg.value > 0, "No ETH in transaction");
-    // require(yourToken.transfer(msg.sender, amountOfTokens));
-    // emit BuyTokens(msg.sender, msg.value, amountOfTokens);
 
-     // decrement the token balance of the seller
-        yourToken.balances[msg.sender] -= _amountOfTokens;
-        // increment the token balance of the vendor's address. 
-        balances[] += _amount;
+    uint256 amountOfTokens = _amountOfTokens * 10**18;
+    uint256 _amountToSend = _amountOfTokens * pricePerToken;
 
-        /*
-         * don't forget to emit the transfer event
-         * so that external apps can reflect the transfer
-         */
-        emit Transfer(msg.sender, address(this), _amount);
-        
-        // e.g. the user is selling 100 tokens, send them 500 wei
-        payable(msg.sender).transfer(amount * tokenPrice);
+    console.log("address(this)", address(this));
+    console.log("msg.sender", msg.sender);
+
+
+    yourToken.transfer(msg.sender, amountOfTokens);
+    // payable(msg.sender).transfer(amountOfTokens * pricePerToken);
+    // emit SellTokens(msg.sender, _amountToSend, amountOfTokens);
+
   }
-
 
   //ToDo: create a withdraw() function that lets the owner, you can 
   //use the Ownable.sol import above:
