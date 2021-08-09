@@ -37,20 +37,25 @@ contract Vendor is Ownable {
   //ToDo: create a sellTokens() function:
 
   function sellTokens(uint256 _amountOfTokens) public payable {
+    require(_amountOfTokens > 0, "You need to sell at least some tokens");
 
-    uint256 amountOfTokens = _amountOfTokens * 10**18;
+    uint256 amountOfTokensWei = _amountOfTokens * 10**18;
     uint256 _amountToSend = _amountOfTokens * pricePerToken;
+    uint256 allowance = yourToken.allowance(msg.sender, address(this));
 
-    console.log("address(this)", address(this));
-    console.log("msg.sender", msg.sender);
+    require(allowance >= amountOfTokensWei, "Check the token allowance");
 
-
-    yourToken.transfer(msg.sender, amountOfTokens);
-    // payable(msg.sender).transfer(amountOfTokens * pricePerToken);
-    // emit SellTokens(msg.sender, _amountToSend, amountOfTokens);
-
+    yourToken.transferFrom(msg.sender, address(this), amountOfTokensWei);
+    
+    payable(msg.sender).transfer(_amountToSend);
+    
+    emit SellTokens(msg.sender, _amountToSend, _amountOfTokens);
   }
 
   //ToDo: create a withdraw() function that lets the owner, you can 
   //use the Ownable.sol import above:
 }
+
+    // amountOfTokens 1000000000000000000
+    // _amountToSend 100000000000000000
+    // allowance 1000000000000000000
