@@ -13,7 +13,6 @@ contract Vendor is Ownable {
   event BuyTokens(address _buyer, uint256 _amountOfETH, uint256 _amountOfTokens);
   event SellTokens(address _seller, uint256 _amountOfETH, uint256 _amountOfTokens);
 
-
   constructor(address tokenAddress) public {
     yourToken = YourToken(tokenAddress);
   }
@@ -36,7 +35,7 @@ contract Vendor is Ownable {
 
   //ToDo: create a sellTokens() function:
 
-  function sellTokens(uint256 _amountOfTokens) public payable {
+  function sellTokens(uint256 _amountOfTokens) public {
     require(_amountOfTokens > 0, "You need to sell at least some tokens");
 
     uint256 amountOfTokensWei = _amountOfTokens * 10**18;
@@ -45,17 +44,24 @@ contract Vendor is Ownable {
 
     require(allowance >= amountOfTokensWei, "Check the token allowance");
 
-    yourToken.transferFrom(msg.sender, address(this), amountOfTokensWei);
+    require(yourToken.transferFrom(msg.sender, address(this), amountOfTokensWei), "Failed to send tokens");
+
+    (bool sent) = (payable(msg.sender)).call{value: _amountToSend}("");
+    require(sent, "Failed to send Ether");
     
-    payable(msg.sender).transfer(_amountToSend);
+    // require(payable(msg.sender).transfer(_amountToSend), "Failed to send ETH");
     
     emit SellTokens(msg.sender, _amountToSend, _amountOfTokens);
   }
 
   //ToDo: create a withdraw() function that lets the owner, you can 
   //use the Ownable.sol import above:
-}
 
-    // amountOfTokens 1000000000000000000
-    // _amountToSend 100000000000000000
-    // allowance 1000000000000000000
+  function withdraw(uint256 _amountToWithdrawWei) public onlyOwner {
+    require(_amountToWithdrawWei > 0, "You need to withdraw at least some tokens");
+    require(address(this).balance >= _amountToWithdrawWei, "The vendor contract does not hold enough ETH to fill your request");
+
+    (bool sent) = (payable(msg.sender)).call{value: _amountToWithdrawWei}("");
+    require(sent, "Failed to send Ether");
+  }
+}
